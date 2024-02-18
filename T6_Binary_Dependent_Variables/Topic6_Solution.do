@@ -1,3 +1,3 @@
-*** Solutions to the exercises for topic 7
+*** Solutions to the exercises for topic 6
 **********************************************
 Incomplete
