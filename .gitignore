@@ -1,0 +1,12 @@
+# Ignore everything
+*
+
+# Except directories starting with 'T' followed by any number
+!T[0-9]*/
+
+# Ignore everything inside topic directories
+T[0-9]*/*
+
+# Do not ignore exercise and solution files for any topic number
+!T[0-9]*/Topic[0-9]_Exercise.pdf
+!T[0-9]*/Topic[0-9]_Solution.do
