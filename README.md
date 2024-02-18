@@ -2,18 +2,6 @@
 
 This repository contains exercises and solutions for a course in applied econometrics using Stata. Below you will find links to the exercises for each topic, as well as the corresponding Stata `.do` files with solutions.
 
-## Table of Contents
-
-- [Introduction to Stata](T1_Intro_to_Stata)
-- [Exploratory Data Analysis](#exploratory-data-analysis)
-- [Linear Regression Analysis](#linear-regression-analysis)
-- [Functional Form / Interaction Effects](#functional-form--interaction-effects)
-- [Missing Data](#missing-data)
-- [Binary Dependent Variables](#binary-dependent-variables)
-- [Marginal Effects](#marginal-effects)
-- [Panel Data](#panel-data)
-- [Time Series](#time-series)
-
 ## Completed 
 ### Introduction to Stata
 [Exercise](T1_Intro_to_Stata/Topic1_Exercise.pdf) | [Solution](T1_Intro_to_Stata/Topic1_Solution.do)
