@@ -1,5 +1,5 @@
 *** Solutions for Regression Analysis Exercises ***
-*** Topic 5: Heteroskedasticity and Specification Analysis ***
+*** Topic 4: Heteroskedasticity and Specification Analysis ***
 
 * Load the dataset HPRICE2
 use "HPRICE2.dta", clear
