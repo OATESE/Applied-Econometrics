@@ -1,6 +1,8 @@
 # Ignore everything
 *
-
+!.gitignore
+!.log
+!README.md
 # Except directories starting with 'T' followed by any number
 !T[0-9]*/
 
