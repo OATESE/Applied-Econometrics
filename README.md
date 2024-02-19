@@ -18,10 +18,11 @@ Understanding the basics of linear regression in Stata.
 Exploring different functional forms and interaction terms in regression models.  
 [Exercise](T4_Functional_Form_Interaction_Effects/Topic4_Exercise.pdf) | [Solution](T4_Functional_Form_Interaction_Effects/Topic4_Solution.do)
 
-## Yet to complete
 ### Missing Data
 Handling missing data in econometric analyses.  
 [Exercise](T5_Missing_Data/Topic5_Exercise.pdf) | [Solution](T5_Missing_Data/Topic5_Solution.do)
+
+## Yet to complete
 
 ### Binary Dependent Variables
 Dealing with binary dependent variables in regression analysis.  
