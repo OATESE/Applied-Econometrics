@@ -1,0 +1,386 @@
+----------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/elliottoates/Library/CloudStorage/OneDrive-UniversityofExeter/Applied Econ
+> ometrics/T5_Missing_Data/Topic5_Results.log
+  log type:  text
+ opened on:  19 Feb 2024, 12:46:21
+
+. 
+. * About Missings 
+. *1. 
+. 
+. display (.>5)
+1
+
+. *Returns as true as stata treats a missing as larger than any given numeric value
+. 
+. *2.
+. display .+.
+.
+
+. * Sum of two missing values is a missing value
+. 
+. *3. 
+. display .+.a
+.
+
+. *sum of two different type of missing value is a missing values
+. 
+. *4
+. display .a * .b
+.
+
+. *product of two different types of missing value is a missing values
+. 
+. 
+. *** Missing Values In Regression Analysis
+. 
+. webuse nlsw88, clear
+(NLSW, 1988 extract)
+
+. 
+. **1**
+. *Investigate the missing values in this dataset. Are there any? Can you detect certain patte
+> rns of missings?
+. 
+. misstable patterns , freq
+
+       Missing-value patterns
+         (1 means complete)
+
+              |   Pattern
+    Frequency |  1  2  3  4    5  6
+  ------------+---------------------
+        1,848 |  1  1  1  1    1  1
+              |
+          359 |  1  1  1  1    1  0
+           10 |  1  1  1  1    0  1
+            8 |  1  1  1  0    1  1
+            5 |  1  1  0  0    1  1
+            5 |  1  1  1  1    0  0
+            4 |  1  1  0  1    1  1
+            3 |  1  0  1  1    1  0
+            2 |  0  1  1  1    1  1
+            1 |  1  0  1  1    1  1
+            1 |  1  1  1  0    1  0
+  ------------+---------------------
+        2,246 |
+
+  Variables are  (1) grade  (2) hours  (3) occupation  (4) industry  (5) tenure  (6) union
+
+. *The most common pattern in missing values is when the union variable is missing and all oth
+> ers are there. The rest are much smaller ammounts. 
+. 
+. 
+. misstable summarize
+                                                               Obs<.
+                                                +------------------------------
+               |                                | Unique
+      Variable |     Obs=.     Obs>.     Obs<.  | values        Min         Max
+  -------------+--------------------------------+------------------------------
+         grade |         2               2,244  |     16          0          18
+      industry |        14               2,232  |     12          1          12
+    occupation |         9               2,237  |     13          1          13
+         union |       368               1,878  |      2          0           1
+         hours |         4               2,242  |     62          1          80
+        tenure |        15               2,231  |    259          0    25.91667
+  -----------------------------------------------------------------------------
+
+. 
+. **2** 
+. *For a dataset to be considered MAR, the following conditions should be met:
+. **The probability of missingness is not random, but it is fully accounted for by variables f
+> or which you have complete data.
+. **The missingness can be explained by differences in observed data but not by the missing da
+> ta itself.
+. 
+. 
+. **3** 
+. correlate grade industry
+(obs=2,230)
+
+             |    grade industry
+-------------+------------------
+       grade |   1.0000
+    industry |   0.3098   1.0000
+
+
+. correlate grade occupation
+(obs=2,235)
+
+             |    grade occupa~n
+-------------+------------------
+       grade |   1.0000
+  occupation |   0.0657   1.0000
+
+
+. correlate grade hours
+(obs=2,240)
+
+             |    grade    hours
+-------------+------------------
+       grade |   1.0000
+       hours |   0.0871   1.0000
+
+
+. correlate grade tenure
+(obs=2,229)
+
+             |    grade   tenure
+-------------+------------------
+       grade |   1.0000
+      tenure |   0.1228   1.0000
+
+
+. 
+. correlate grade industry occupation hours tenure
+(obs=2,207)
+
+             |    grade industry occupa~n    hours   tenure
+-------------+---------------------------------------------
+       grade |   1.0000
+    industry |   0.3103   1.0000
+  occupation |   0.0680   0.0939   1.0000
+       hours |   0.0907  -0.0743  -0.0337   1.0000
+      tenure |   0.1216   0.0335   0.0091   0.1594   1.0000
+
+
+. 
+. *The discrepancy in correlations between indivudal and one line commands occurs because the 
+> command that calculates all correlations at once may use a different list of observations fo
+> r each pair of variables, excluding any observation that has a missing value for any of the 
+> variables in the list.
+. 
+. **4** 
+. regress wage age married i2.race south smsa collgrad ttl_exp union
+
+      Source |       SS           df       MS      Number of obs   =     1,878
+-------------+----------------------------------   F(8, 1869)      =    106.89
+       Model |  10237.7719         8  1279.72148   Prob > F        =    0.0000
+    Residual |  22375.6705     1,869  11.9720013   R-squared       =    0.3139
+-------------+----------------------------------   Adj R-squared   =    0.3110
+       Total |  32613.4424     1,877  17.3753023   Root MSE        =    3.4601
+
+------------------------------------------------------------------------------
+        wage | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+         age |  -.0603126   .0266083    -2.27   0.024    -.1124977   -.0081276
+     married |  -.2725606   .1720482    -1.58   0.113    -.6099874    .0648663
+             |
+        race |
+      Black  |   -.909151    .196077    -4.64   0.000    -1.293704   -.5245982
+       south |  -.8515369   .1734208    -4.91   0.000    -1.191656   -.5114181
+        smsa |   1.636334   .1801009     9.09   0.000     1.283114    1.989554
+    collgrad |   2.871434   .1892674    15.17   0.000     2.500237    3.242632
+     ttl_exp |    .301306     .01763    17.09   0.000     .2667294    .3358826
+       union |   .7940027   .1906509     4.16   0.000     .4200916    1.167914
+       _cons |   4.788759   1.068781     4.48   0.000     2.692629     6.88489
+------------------------------------------------------------------------------
+
+. 
+. * Store the estimates from this regression
+. estimates store full_model
+
+. *Drop union
+. regress wage age married i2.race south smsa collgrad ttl_exp
+
+      Source |       SS           df       MS      Number of obs   =     2,246
+-------------+----------------------------------   F(7, 2238)      =     65.53
+       Model |  12650.5844         7  1807.22635   Prob > F        =    0.0000
+    Residual |   61717.383     2,238  27.5770255   R-squared       =    0.1701
+-------------+----------------------------------   Adj R-squared   =    0.1675
+       Total |  74367.9674     2,245  33.1260434   Root MSE        =    5.2514
+
+------------------------------------------------------------------------------
+        wage | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+         age |  -.1294984    .036632    -3.54   0.000    -.2013346   -.0576622
+     married |  -.4444918   .2375445    -1.87   0.061    -.9103223    .0213387
+             |
+        race |
+      Black  |  -1.068563   .2719992    -3.93   0.000     -1.60196   -.5351662
+       south |  -.9611612   .2370595    -4.05   0.000    -1.426041   -.4962816
+        smsa |   1.729277     .24872     6.95   0.000     1.241531    2.217023
+    collgrad |   2.961219   .2648005    11.18   0.000     2.441939    3.480499
+     ttl_exp |   .3060216   .0244433    12.52   0.000     .2580876    .3539555
+       _cons |   8.048436   1.467113     5.49   0.000      5.17139    10.92548
+------------------------------------------------------------------------------
+
+. estimates store reduced_model
+
+. 
+. * Compare the two sets of estimates
+. estimates table full_model reduced_model
+
+----------------------------------------
+    Variable | full_model   reduced_~l  
+-------------+--------------------------
+         age | -.06031262   -.12949836  
+     married | -.27256057   -.44449178  
+             |
+        race |
+      Black  |   -.909151   -1.0685633  
+       south | -.85153687   -.96116116  
+        smsa |  1.6363339    1.7292766  
+    collgrad |  2.8714342     2.961219  
+     ttl_exp |  .30130597    .30602157  
+       union |  .79400267               
+       _cons |  4.7887592    8.0484358  
+----------------------------------------
+
+. 
+. *Age: The coefficient for age has become more negative in the reduced model, doubling in mag
+> nitude, which indicates that the effect of age on wage becomes more pronounced when union st
+> atus is not controlled for.
+. 
+. *Married: The coefficient for married has also become more negative in the reduced model, su
+> ggesting a larger negative association between being married and wage when union status is n
+> ot included.
+. 
+. *Race: The negative coefficient for race has increased in the reduced model, which could imp
+> ly a stronger negative relationship between the non-white race indicator and wage without th
+> e union variable in the model.
+. 
+. *South: The negative coefficient for south has increased slightly, indicating a slightly str
+> onger negative effect of being in the south on wage in the absence of the union variable.
+. 
+. *SMSA: The positive coefficient for smsa has decreased, suggesting a smaller positive effect
+>  of being in a Standard Metropolitan Statistical Area on wage when union membership is not c
+> onsidered.
+. 
+. *Collgrad: The coefficient for collgrad is almost unchanged, indicating that the effect of b
+> eing a college graduate on wage is consistent regardless of the inclusion of the union varia
+> ble.
+. 
+. *Ttl_exp: The coefficient for ttl_exp has increased slightly, implying a marginally stronger
+>  positive effect of total work experience on wage in the reduced model.
+. 
+. *Union: This variable was excluded in the reduced model. In the full model, it had a positiv
+> e coefficient, suggesting that being a union member is associated with higher wages.
+. 
+. *Constant: The constant (_cons) has increased substantially in the reduced model. This chang
+> e indicates a shift in the average wage predicted by the model when union is excluded.
+. 
+. **5**
+. *Imputation
+. mi set wide
+
+. mi register imputed union
+
+. mi impute logit union wage age married i2.race south smsa collgrad ttl_exp, add(20)
+
+Univariate imputation                       Imputations =       20
+Logistic regression                               added =       20
+Imputed: m=1 through m=20                       updated =        0
+
+------------------------------------------------------------------
+                   |               Observations per m             
+                   |----------------------------------------------
+          Variable |   Complete   Incomplete   Imputed |     Total
+-------------------+-----------------------------------+----------
+             union |       1878          368       368 |      2246
+------------------------------------------------------------------
+(Complete + Incomplete = Total; Imputed is the minimum across m
+ of the number of filled-in observations.)
+
+. 
+. * After the imputation is done, run the regression on imputed data and store the estimates
+. mi estimate, post: regress wage age married i2.race south smsa collgrad ttl_exp union
+
+Multiple-imputation estimates                   Imputations       =         20
+Linear regression                               Number of obs     =      2,246
+                                                Average RVI       =     0.1411
+                                                Largest FMI       =     0.5639
+                                                Complete DF       =       2237
+DF adjustment:   Small sample                   DF:     min       =      59.17
+                                                        avg       =   1,886.35
+                                                        max       =   2,219.85
+Model F test:       Equal FMI                   F(   8, 1734.1)   =      56.65
+Within VCE type:          OLS                   Prob > F          =     0.0000
+
+------------------------------------------------------------------------------
+        wage | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+         age |  -.1319062   .0363061    -3.63   0.000    -.2031039   -.0607085
+     married |  -.3963942   .2361905    -1.68   0.093    -.8595771    .0667887
+             |
+        race |
+      Black  |  -1.304388   .2731085    -4.78   0.000    -1.839977   -.7687981
+       south |  -.6577679    .243445    -2.70   0.007    -1.135248   -.1802879
+        smsa |   1.672189   .2463908     6.79   0.000     1.189009     2.15537
+    collgrad |   2.756812   .2659583    10.37   0.000     2.235239    3.278385
+     ttl_exp |   .2995336    .024262    12.35   0.000     .2519548    .3471124
+       union |   1.930802   .3882468     4.97   0.000     1.153968    2.707637
+       _cons |   7.735894   1.455035     5.32   0.000     4.882513    10.58927
+------------------------------------------------------------------------------
+
+. * The 'post' option after mi estimate is crucial as it ensures the results are stored in e(b
+> ) and e(V)
+. 
+. *Store estimates
+. estimates store imputed_model
+
+. 
+. *Compare Models 
+. estimates table full_model reduced_model imputed_model
+
+-----------------------------------------------------
+    Variable | full_model   reduced_~l   imputed_~l  
+-------------+---------------------------------------
+         age | -.06031262   -.12949836   -.13190618  
+     married | -.27256057   -.44449178   -.39639422  
+             |
+        race |
+      Black  |   -.909151   -1.0685633   -1.3043877  
+       south | -.85153687   -.96116116   -.65776788  
+        smsa |  1.6363339    1.7292766    1.6721893  
+    collgrad |  2.8714342     2.961219    2.7568121  
+     ttl_exp |  .30130597    .30602157    .29953358  
+       union |  .79400267                 1.9308024  
+       _cons |  4.7887592    8.0484358    7.7358942  
+-----------------------------------------------------
+
+. 
+. *Age: The coefficient for age in the imputed model (-.13211771) is between the full (-.06312
+> 62) and reduced (-.12949836) model values, showing a negative relationship with wage. The ma
+> gnitude is closer to the reduced model, suggesting the imputation of union may have partiall
+> y accounted for its absence.
+. 
+. *Married: The married coefficient in the imputed model (-.40038168) is very close to the red
+> uced model (-.44449178), both of which are significantly more negative than in the full mode
+> l (-.27250657). This indicates that the relationship between married and wage is less positi
+> ve (or more negative) when union is not included, even after imputation.
+. 
+. *Race (Black): The coefficient for Black race in the imputed model (-1.2929216) is more nega
+> tive than in both the full (-.909151) and reduced (-1.0685633) models, suggesting a stronger
+>  negative effect on wage.
+. 
+. *South: The coefficient for south in the imputed model (-.67682743) is less negative compare
+> d to the reduced model (-.9611616), and closer to the full model (-.85153687), indicating th
+> at imputation of union might have a mediating effect on the relationship between south and w
+> age.
+. 
+. *SMSA: The coefficient for smsa in the imputed model (1.6780011) is lower than in the reduce
+> d model (1.7292766) but higher than in the full model (1.6336339), suggesting a positive eff
+> ect on wage that is somewhat mitigated after imputation.
+. 
+. *Collgrad: The collgrad coefficient in the imputed model (2.777453) is very close to both th
+> e full (2.8713432) and reduced (2.961219) models, suggesting that the effect of being a coll
+> ege graduate on wage is consistent across models.
+. 
+. *Ttl_exp: The coefficient for ttl_exp (total experience) in the imputed model (.2997823) is 
+> slightly lower than in both the full (.30130597) and reduced (.3602157) models, indicating a
+>  positive effect on wage that is consistent across models.
+. 
+. *Union: The coefficient for union in the imputed model (1.8434316) is higher than in the ful
+> l model (.7940267), suggesting that after imputation, union membership is associated with a 
+> larger positive effect on wage.
+. 
+. *Close log
+. log close
+      name:  <unnamed>
+       log:  /Users/elliottoates/Library/CloudStorage/OneDrive-UniversityofExeter/Applied Econ
+> ometrics/T5_Missing_Data/Topic5_Results.log
+  log type:  text
+ closed on:  19 Feb 2024, 12:46:25
+----------------------------------------------------------------------------------------------
