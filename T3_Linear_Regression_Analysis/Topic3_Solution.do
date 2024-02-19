@@ -1,5 +1,6 @@
 *** Solutions to the exercises for topic 3
 **********************************************
+log using Topic3_Results.log, replace
 
 ** adjust according to your own set-up
 
@@ -145,3 +146,5 @@ list id t h d _dfbeta* if inlist(id,57, 285, 369, 142, 362, 40, 269)
 * observation 142 shifts all coefficients somewhat. Also very poorly fitted. 
 
 // Rerun the regression without observation 369, comment on the difference between the regression results. 
+
+log close

@@ -1,6 +1,6 @@
 *** Solutions for Regression Analysis Exercises ***
 *** Topic 4: Heteroskedasticity and Specification Analysis ***
-
+log using Topic4_Results.log, replace
 * Load the dataset HPRICE2
 use "HPRICE2.dta", clear
 
@@ -77,4 +77,4 @@ margins, dydx(radial) at(lnox=(1.34 2.16))
 * At `log(nox)` = 1.34, the marginal effects are not significant.
 * At `log(nox)` = 2.16, the marginal effects are significant for some categories of `radial`, suggesting that the importance of highway accessibility increases in areas with higher `nox` levels.
 
-
+log close

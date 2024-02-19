@@ -1,0 +1,392 @@
+----------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/elliottoates/Library/CloudStorage/OneDrive-UniversityofExeter/Applied Econ
+> ometrics/T4_Functional_Form_Interaction_Effects/Topic4_Results.log
+  log type:  text
+ opened on:  19 Feb 2024, 13:00:41
+
+. * Load the dataset HPRICE2
+. use "HPRICE2.dta", clear
+
+. 
+. *** Section 2.1 Lin-Lin Model ***
+. * Descriptive Statistics to understand the dataset
+. summarize
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       price |        506    22511.51    9208.856       5000      50001
+       crime |        506    3.611536    8.590247       .006     88.976
+         nox |        506    5.549783    1.158395       3.85       8.71
+       rooms |        506    6.284051    .7025938       3.56       8.78
+        dist |        506    3.795751    2.106137       1.13      12.13
+-------------+---------------------------------------------------------
+      radial |        506    9.549407    8.707259          1         24
+     proptax |        506    40.82372    16.85371       18.7       71.1
+     stratio |        506    18.45929     2.16582       12.6         22
+     lowstat |        506    12.70148    7.238066       1.73      39.07
+      lprice |        506    9.941057    .4092549   8.517193    10.8198
+-------------+---------------------------------------------------------
+        lnox |        506    1.693091    .2014101   1.348073   2.164472
+    lproptax |        506    5.931405    .3963666   5.231109   6.566672
+
+. 
+. * Estimate the lin-lin regression model
+. regress price crime nox dist radial proptax rooms lowstat stratio
+
+      Source |       SS           df       MS      Number of obs   =       506
+-------------+----------------------------------   F(8, 497)       =    156.13
+       Model |  3.0635e+10         8  3.8294e+09   Prob > F        =    0.0000
+    Residual |  1.2190e+10       497  24527319.6   R-squared       =    0.7154
+-------------+----------------------------------   Adj R-squared   =    0.7108
+       Total |  4.2826e+10       505    84803032   Root MSE        =    4952.5
+
+------------------------------------------------------------------------------
+       price | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+       crime |  -122.5444   33.84675    -3.62   0.000    -189.0447   -56.04403
+         nox |  -1853.227   365.3199    -5.07   0.000    -2570.989   -1135.465
+        dist |  -1231.388   167.9645    -7.33   0.000    -1561.396   -901.3799
+      radial |   293.1667   65.94695     4.45   0.000     163.5975    422.7359
+     proptax |  -122.3608   34.32771    -3.56   0.000    -189.8062    -54.9155
+       rooms |   4062.658   416.9391     9.74   0.000     3243.477    4881.838
+     lowstat |  -519.6365   47.62111   -10.91   0.000    -613.2001    -426.073
+     stratio |  -1102.697   125.8861    -8.76   0.000    -1350.031   -855.3624
+       _cons |   41533.99   5065.237     8.20   0.000     31582.07    51485.91
+------------------------------------------------------------------------------
+
+. 
+. * Interpretation of Coefficients
+. * 'price': Dependent variable - median house price.
+. * 'crime': For each unit increase, price decreases by $122.54 (statistically significant).
+. * 'nox': Each unit increase, price decreases by $1,853.23 (statistically significant).
+. * 'dist': Each unit increase, price decreases by $1,231.39 (statistically significant).
+. * 'radial': Each unit increase, price increases by $293.17 (statistically significant).
+. * 'proptax': Each unit increase, price decreases by $122.31 (statistically significant).
+. * 'rooms': Each additional room increases price by $4,062.66 (statistically significant).
+. * 'lowstat': Each point increase, price decreases by $519.64 (statistically significant).
+. * 'stratio': Each unit increase, price decreases by $1,102.70 (statistically significant).
+. * '_cons': Median house price with all predictors at zero ($41,533.99, statistically signifi
+> cant).
+. * R-squared: 0.7154 - Model explains 71.54% of variability in price.
+. 
+. * Heteroskedasticity and Misspecification Tests
+. estat hettest
+
+Breusch–Pagan/Cook–Weisberg test for heteroskedasticity 
+Assumption: Normal error terms
+Variable: Fitted values of price
+
+H0: Constant variance
+
+    chi2(1) =   5.69
+Prob > chi2 = 0.0170
+
+. estat ovtest
+
+Ramsey RESET test for omitted variables
+Omitted: Powers of fitted values of price
+
+H0: Model has no omitted variables
+
+F(3, 494) =  69.98
+ Prob > F = 0.0000
+
+. 
+. * Interpretation of Diagnostic Tests
+. * Heteroskedasticity (Breusch–Pagan): chi2(1) = 5.69, p = 0.017, indicating heteroskedastici
+> ty.
+. * Misspecification (Ramsey RESET): F(3, 502) = 69.98, p < 0.001, indicating potential omitte
+> d variables or incorrect form.
+. 
+. * Residual-versus-Fitted Plot for heteroskedasticity
+. rvfplot, yline(0)
+
+. 
+. * Interaction Terms: Effect of 'nox' and 'dist' on 'price'
+. regress price c.nox##c.dist radial proptax rooms lowstat stratio
+
+      Source |       SS           df       MS      Number of obs   =       506
+-------------+----------------------------------   F(8, 497)       =    155.21
+       Model |  3.0584e+10         8  3.8230e+09   Prob > F        =    0.0000
+    Residual |  1.2242e+10       497  24631008.4   R-squared       =    0.7142
+-------------+----------------------------------   Adj R-squared   =    0.7096
+       Total |  4.2826e+10       505    84803032   Root MSE        =      4963
+
+------------------------------------------------------------------------------
+       price | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+         nox |  -458.1452   533.9642    -0.86   0.391    -1507.251    590.9602
+        dist |    1497.63   827.9056     1.81   0.071    -128.9961    3124.257
+             |
+c.nox#c.dist |  -630.6992   190.5001    -3.31   0.001    -1004.984   -256.4145
+             |
+      radial |   247.1924   63.62337     3.89   0.000     122.1885    372.1963
+     proptax |  -150.6357    35.4454    -4.25   0.000     -220.277   -80.99442
+       rooms |   4093.302   417.8832     9.80   0.000     3272.267    4914.338
+     lowstat |  -567.0018   47.18365   -12.02   0.000    -659.7058   -474.2978
+     stratio |  -941.7782   132.1892    -7.12   0.000    -1201.497   -682.0596
+       _cons |   34125.47   5464.117     6.25   0.000     23389.86    44861.09
+------------------------------------------------------------------------------
+
+. 
+. * Marginal Effects of 'nox' at different levels of 'dist'
+. margins, dydx(nox) at(dist=(1 12))
+
+Average marginal effects                                   Number of obs = 506
+Model VCE: OLS
+
+Expression: Linear prediction, predict()
+dy/dx wrt:  nox
+1._at: dist =  1
+2._at: dist = 12
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |      dy/dx   std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+nox          |
+         _at |
+          1  |  -1088.844   415.8119    -2.62   0.009     -1905.81   -271.8786
+          2  |  -8026.536   1931.014    -4.16   0.000    -11820.49   -4232.578
+------------------------------------------------------------------------------
+
+. * Both marginal effects are significant at the 5% level.
+. 
+. * Include 'nox' squared in the model
+. regress price c.nox##c.nox##c.dist radial proptax rooms lowstat stratio
+
+      Source |       SS           df       MS      Number of obs   =       506
+-------------+----------------------------------   F(10, 495)      =    126.22
+       Model |  3.0762e+10        10  3.0762e+09   Prob > F        =    0.0000
+    Residual |  1.2064e+10       495  24371550.6   R-squared       =    0.7183
+-------------+----------------------------------   Adj R-squared   =    0.7126
+       Total |  4.2826e+10       505    84803032   Root MSE        =    4936.8
+
+------------------------------------------------------------------------------------
+             price | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------------+----------------------------------------------------------------
+               nox |   5119.979   4461.111     1.15   0.252     -3645.07    13885.03
+                   |
+       c.nox#c.nox |  -288.8295   380.2181    -0.76   0.448     -1035.87    458.2108
+                   |
+              dist |  -987.8409   4296.045    -0.23   0.818    -9428.572     7452.89
+                   |
+      c.nox#c.dist |   850.3507   1758.968     0.48   0.629    -2605.613    4306.315
+                   |
+c.nox#c.nox#c.dist |  -186.9255   177.8481    -1.05   0.294    -536.3558    162.5049
+                   |
+            radial |    246.075   63.28904     3.89   0.000     121.7268    370.4233
+           proptax |  -159.5645   36.65878    -4.35   0.000    -231.5905   -87.53851
+             rooms |   4066.634   421.9885     9.64   0.000     3237.525    4895.743
+           lowstat |  -591.4828   47.91536   -12.34   0.000    -685.6254   -497.3402
+           stratio |  -994.7135   133.6009    -7.45   0.000    -1257.208   -732.2187
+             _cons |   14149.59   13033.94     1.09   0.278    -11459.07    39758.25
+------------------------------------------------------------------------------------
+
+. 
+. * New Marginal Effects with 'nox' squared
+. margins, dydx(nox) at(dist=(1 12))
+
+Average marginal effects                                   Number of obs = 506
+Model VCE: OLS
+
+Expression: Linear prediction, predict()
+dy/dx wrt:  nox
+1._at: dist =  1
+2._at: dist = 12
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |      dy/dx   std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+nox          |
+         _at |
+          1  |   689.6558   778.1992     0.89   0.376    -839.3251    2218.637
+          2  |  -12779.19   3145.597    -4.06   0.000    -18959.56   -6598.826
+------------------------------------------------------------------------------
+
+. * 'dist' = 1: Marginal effect of nox on price is not significant (p = 0.376).
+. * 'dist' = 12: Marginal effect of nox on price is significant (p < 0.001).
+. 
+. *** Section 2.2 Log-Lin and Log-Log Model ***
+. * Estimate the log-lin and log-log regression model
+. gen ldist = log(dist)
+
+. regress lprice crime lnox ldist radial lproptax rooms lowstat stratio
+
+      Source |       SS           df       MS      Number of obs   =       506
+-------------+----------------------------------   F(8, 497)       =    218.22
+       Model |   65.838817         8  8.22985212   Prob > F        =    0.0000
+    Residual |   18.743408       497  .037713095   R-squared       =    0.7784
+-------------+----------------------------------   Adj R-squared   =    0.7748
+       Total |   84.582225       505  .167489554   Root MSE        =     .1942
+
+------------------------------------------------------------------------------
+      lprice | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+       crime |  -.0126841   .0013481    -9.41   0.000    -.0153329   -.0100354
+        lnox |  -.6184855   .0953716    -6.49   0.000    -.8058667   -.4311043
+       ldist |  -.2760251   .0324973    -8.49   0.000    -.3398742    -.212176
+      radial |     .01246   .0022321     5.58   0.000     .0080745    .0168456
+    lproptax |  -.2607753    .046531    -5.60   0.000    -.3521971   -.1693535
+       rooms |   .0986069   .0163282     6.04   0.000     .0665261    .1306877
+     lowstat |  -.0290427   .0018745   -15.49   0.000    -.0327256   -.0253599
+     stratio |  -.0388607   .0048202    -8.06   0.000    -.0483312   -.0293903
+       _cons |   13.25636   .3594712    36.88   0.000     12.55009    13.96263
+------------------------------------------------------------------------------
+
+. 
+. * Heteroskedasticity and Specification Tests
+. estat hettest
+
+Breusch–Pagan/Cook–Weisberg test for heteroskedasticity 
+Assumption: Normal error terms
+Variable: Fitted values of lprice
+
+H0: Constant variance
+
+    chi2(1) =  66.62
+Prob > chi2 = 0.0000
+
+. estat ovtest
+
+Ramsey RESET test for omitted variables
+Omitted: Powers of fitted values of lprice
+
+H0: Model has no omitted variables
+
+F(3, 494) =  11.82
+ Prob > F = 0.0000
+
+. * Heteroskedasticity (Breusch–Pagan): chi2(1) = 66.62, p < 0.00, indicating no heteroskedast
+> icity.
+. * Misspecification (Ramsey RESET): F(3, 502) = 11.82, p < 0.001, indicating no potential omi
+> tted variables or incorrect form.
+. 
+. * Residual-versus-Fitted Plot
+. rvfplot, yline(0)
+
+. 
+. * Interaction Terms: Effect of 'lnox' and 'radial' on 'lprice'
+. regress lprice crime c.lnox##i.radial ldist lproptax rooms lowstat stratio
+
+      Source |       SS           df       MS      Number of obs   =       506
+-------------+----------------------------------   F(23, 482)      =     79.00
+       Model |  66.8496186        23  2.90650516   Prob > F        =    0.0000
+    Residual |  17.7326064       482   .03678964   R-squared       =    0.7904
+-------------+----------------------------------   Adj R-squared   =    0.7803
+       Total |   84.582225       505  .167489554   Root MSE        =    .19181
+
+-------------------------------------------------------------------------------
+       lprice | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+--------------+----------------------------------------------------------------
+        crime |  -.0120847   .0013543    -8.92   0.000    -.0147457   -.0094237
+         lnox |  -1.052556   .3063796    -3.44   0.001    -1.654561   -.4505516
+              |
+       radial |
+           2  |  -.9136221   .6387681    -1.43   0.153    -2.168736    .3414919
+           3  |  -.0161078   .9820208    -0.02   0.987    -1.945678    1.913463
+           4  |  -.9773299   .4832878    -2.02   0.044    -1.926941   -.0277186
+           5  |  -.7300225   .4812467    -1.52   0.130    -1.675623    .2155782
+           6  |  -1.684494   .6049258    -2.78   0.006    -2.873112    -.495877
+           7  |   .8380253   1.801111     0.47   0.642    -2.700973    4.377024
+           8  |  -1.693901    1.43127    -1.18   0.237    -4.506201    1.118398
+          24  |   .6102327   .5799695     1.05   0.293    -.5293481    1.749813
+              |
+radial#c.lnox |
+           2  |   .6505027   .4126736     1.58   0.116    -.1603586    1.461364
+           3  |   .0944906   .6518038     0.14   0.885    -1.186237    1.375219
+           4  |   .7171438   .3135284     2.29   0.023     .1010926    1.333195
+           5  |   .5612638   .3116714     1.80   0.072    -.0511386    1.173666
+           6  |    1.14129   .3842798     2.97   0.003     .3862196    1.896361
+           7  |   -.443279   1.207299    -0.37   0.714    -2.815498     1.92894
+           8  |   1.212099   .9023331     1.34   0.180    -.5608935    2.985091
+          24  |  -.0142499   .3488044    -0.04   0.967    -.6996149    .6711151
+              |
+        ldist |  -.2465094   .0373057    -6.61   0.000    -.3198113   -.1732074
+     lproptax |  -.2879614   .0601203    -4.79   0.000    -.4060916   -.1698313
+        rooms |   .0987418   .0168915     5.85   0.000     .0655517    .1319319
+      lowstat |   -.029679   .0019178   -15.48   0.000    -.0334472   -.0259108
+      stratio |  -.0401992   .0064816    -6.20   0.000    -.0529348   -.0274635
+        _cons |   13.98177   .6276151    22.28   0.000     12.74857    15.21497
+-------------------------------------------------------------------------------
+
+. 
+. * Marginal Effects of 'radial' on 'lprice'
+. margins, dydx(radial) at(lnox=(1.34 2.16))
+
+Average marginal effects                                   Number of obs = 506
+Model VCE: OLS
+
+Expression: Linear prediction, predict()
+dy/dx wrt:  2.radial 3.radial 4.radial 5.radial 6.radial 7.radial 8.radial 24.radial
+1._at: lnox = 1.34
+2._at: lnox = 2.16
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |      dy/dx   std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+1.radial     |  (base outcome)
+-------------+----------------------------------------------------------------
+2.radial     |
+         _at |
+          1  |  -.0419484   .1025878    -0.41   0.683     -.243523    .1596263
+          2  |   .4914639   .2625113     1.87   0.062     -.024344    1.007272
+-------------+----------------------------------------------------------------
+3.radial     |
+         _at |
+          1  |   .1105096   .1202918     0.92   0.359    -.1258515    .3468706
+          2  |   .1879919   .4309088     0.44   0.663       -.6587    1.034684
+-------------+----------------------------------------------------------------
+4.radial     |
+         _at |
+          1  |  -.0163572   .0775812    -0.21   0.833    -.1687965     .136082
+          2  |   .5717007   .2021928     2.83   0.005     .1744126    .9689888
+-------------+----------------------------------------------------------------
+5.radial     |
+         _at |
+          1  |   .0220711   .0784633     0.28   0.779    -.1321013    .1762434
+          2  |   .4823074   .2006294     2.40   0.017     .0880912    .8765237
+-------------+----------------------------------------------------------------
+6.radial     |
+         _at |
+          1  |  -.1551655    .106744    -1.45   0.147    -.3649066    .0545756
+          2  |   .7806926   .2366248     3.30   0.001      .315749    1.245636
+-------------+----------------------------------------------------------------
+7.radial     |
+         _at |
+          1  |   .2440314   .1932311     1.26   0.207    -.1356479    .6237107
+          2  |  -.1194574   .8103718    -0.15   0.883    -1.711755     1.47284
+-------------+----------------------------------------------------------------
+8.radial     |
+         _at |
+          1  |  -.0696889    .229232    -0.30   0.761    -.5201064    .3807287
+          2  |   .9242323   .5227265     1.77   0.078    -.1028719    1.951337
+-------------+----------------------------------------------------------------
+24.radial    |
+         _at |
+          1  |   .5911378     .13882     4.26   0.000     .3183707     .863905
+          2  |   .5794529    .201794     2.87   0.004     .1829484    .9759575
+------------------------------------------------------------------------------
+Note: dy/dx for factor levels is the discrete change from the base level.
+
+. 
+. * Interaction Model Coefficients
+. * The interaction term `c.lnox#i.radial` is not consistently significant, indicating that th
+> e effect of `nox` on `price` does not uniformly vary with changes in `radial`.
+. 
+. * Marginal Effect of `radial` on `log(price)`
+. * At `log(nox)` = 1.34, the marginal effects are not significant.
+. * At `log(nox)` = 2.16, the marginal effects are significant for some categories of `radial`
+> , suggesting that the importance of highway accessibility increases in areas with higher `no
+> x` levels.
+. 
+. log close
+      name:  <unnamed>
+       log:  /Users/elliottoates/Library/CloudStorage/OneDrive-UniversityofExeter/Applied Econ
+> ometrics/T4_Functional_Form_Interaction_Effects/Topic4_Results.log
+  log type:  text
+ closed on:  19 Feb 2024, 13:00:41
+----------------------------------------------------------------------------------------------

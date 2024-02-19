@@ -1,3 +1,6 @@
+log using Topic1_Results.log, replace
+
+
 sysuse auto, clear  // Load the auto dataset
 
 sort price  // Sort the data by price
@@ -27,7 +30,6 @@ gen obsno10 = _n + 10
 // Part 2
 // set wd to where the data is 
 clear
-cd "/Users/elliottoates/Library/CloudStorage/OneDrive-UniversityofExeter/Applied Econometrics/Topic 1"
 use pen01aL3.dta
 
 // Generate the nominal hourly wage from the log wage
@@ -60,7 +62,7 @@ egen std_varname = std(wage) //how to standardise a variable
 gen sign_varname = sign(std_varname) //variable holding sign of another variable 
 
 
-
+log close
 
 
 

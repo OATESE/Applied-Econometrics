@@ -1,4 +1,5 @@
-pwd
+log using Topic2_Results.log, replace
+
 
 sysuse nlsw88, clear 
 
@@ -53,5 +54,6 @@ gen ln_wage = ln(wage)
 // This addresses the test of the null hypothesis that the natural logarithm of wage is normally distributed
 sktest ln_wage
 
+log close
 
 

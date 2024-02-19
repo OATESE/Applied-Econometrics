@@ -1,0 +1,520 @@
+----------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/elliottoates/Library/CloudStorage/OneDrive-UniversityofExeter/Applied Econ
+> ometrics/T3_Linear_Regression_Analysis/Topic3_Results.log
+  log type:  text
+ opened on:  19 Feb 2024, 13:00:15
+
+. 
+. ** adjust according to your own set-up
+. 
+. use GreeneF41_3.dta, clear
+
+. 
+. **1.1 estimation
+. 
+. regress wearn we ax ax2 kids mtr he hw
+
+      Source |       SS           df       MS      Number of obs   =       428
+-------------+----------------------------------   F(7, 420)       =     34.63
+       Model |  2.8914e+09         7   413052528   Prob > F        =    0.0000
+    Residual |  5.0096e+09       420  11927519.7   R-squared       =    0.3660
+-------------+----------------------------------   Adj R-squared   =    0.3554
+       Total |  7.9009e+09       427  18503339.5   Root MSE        =    3453.6
+
+------------------------------------------------------------------------------
+       wearn | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+          we |   399.8928   93.52507     4.28   0.000     216.0573    583.7284
+          ax |   240.5787   68.51342     3.51   0.000     105.9068    375.2506
+         ax2 |  -3.379109   2.051589    -1.65   0.100    -7.411771    .6535534
+        kids |  -91.23148    397.176    -0.23   0.818    -871.9319    689.4689
+         mtr |  -33892.89   3223.625   -10.51   0.000    -40229.34   -27556.45
+          he |  -210.9548   72.15588    -2.92   0.004    -352.7865    -69.1232
+          hw |  -365.6111   66.63966    -5.49   0.000    -496.5999   -234.6223
+       _cons |   25803.93   3040.645     8.49   0.000     19827.16    31780.71
+------------------------------------------------------------------------------
+
+. est store model1
+
+. 
+. **1.2 interpretation
+. 
+. *1.2.1 Does the constant term have a meaningful interpretation?
+. 
+. 
+. *1.2.2 What is the estimated effect of experience on earnings?
+. twoway (function y = _b[ax]*x + _b[ax2]*x^2, range(0 40))
+
+. 
+. //alternative
+. gen y = _b[ax]*ax + _b[ax2]*ax2
+
+. 
+. twoway line y ax, sort
+
+. 
+. *1.2.3 How can you interpret the dummy variable for kids?
+. 
+. *1.2.4 Can you compare the magnitude of the coefficients?
+. 
+. *1.2.5 Which coefficients are statistically significant?
+. 
+. *1.2.6 Compare your results with the results from estimating the smaller model in the slides
+> . Comment on the most obvious differences.
+. regress wearn we ax ax2 kids mtr
+
+      Source |       SS           df       MS      Number of obs   =       428
+-------------+----------------------------------   F(5, 422)       =     36.16
+       Model |  2.3700e+09         5   473994093   Prob > F        =    0.0000
+    Residual |  5.5310e+09       422  13106529.6   R-squared       =    0.3000
+-------------+----------------------------------   Adj R-squared   =    0.2917
+       Total |  7.9009e+09       427  18503339.5   Root MSE        =    3620.3
+
+------------------------------------------------------------------------------
+       wearn | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+          we |   252.4203   84.47501     2.99   0.003     86.37609    418.4645
+          ax |   263.4696   71.72779     3.67   0.000     122.4813    404.4578
+         ax2 |  -3.136862   2.150254    -1.46   0.145    -7.363405    1.089681
+        kids |  -51.88783   415.7375    -0.12   0.901    -869.0621    765.2864
+         mtr |  -20225.38   2516.535    -8.04   0.000    -25171.88   -15278.87
+       _cons |    12851.6   2407.604     5.34   0.000     8119.209    17583.99
+------------------------------------------------------------------------------
+
+. est store model2
+
+. 
+. est table model1 model2
+
+----------------------------------------
+    Variable |   model1       model2    
+-------------+--------------------------
+          we |  399.89285     252.4203  
+          ax |  240.57869    263.46956  
+         ax2 | -3.3791088   -3.1368616  
+        kids | -91.231485   -51.887831  
+         mtr | -33892.895   -20225.378  
+          he | -210.95483               
+          hw | -365.61108               
+       _cons |  25803.934    12851.598  
+----------------------------------------
+
+. 
+. *1.2.7 Re-play your regression to show standardized coefficients:
+. regress, beta
+
+      Source |       SS           df       MS      Number of obs   =       428
+-------------+----------------------------------   F(5, 422)       =     36.16
+       Model |  2.3700e+09         5   473994093   Prob > F        =    0.0000
+    Residual |  5.5310e+09       422  13106529.6   R-squared       =    0.3000
+-------------+----------------------------------   Adj R-squared   =    0.2917
+       Total |  7.9009e+09       427  18503339.5   Root MSE        =    3620.3
+
+------------------------------------------------------------------------------
+       wearn | Coefficient  Std. err.      t    P>|t|                     Beta
+-------------+----------------------------------------------------------------
+          we |   252.4203   84.47501     2.99   0.003                 .1341087
+          ax |   263.4696   71.72779     3.67   0.000                 .4934245
+         ax2 |  -3.136862   2.150254    -1.46   0.145                -.1969263
+        kids |  -51.88783   415.7375    -0.12   0.901                 -.005623
+         mtr |  -20225.38   2516.535    -8.04   0.000                 -.361746
+       _cons |    12851.6   2407.604     5.34   0.000                        .
+------------------------------------------------------------------------------
+
+. 
+. //alternative 1
+. sum wearn
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+       wearn |        428     5192.94    4301.551         30   25999.95
+
+. gen sd_wearn=r(sd)
+
+. 
+. sum we
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+          we |        428    12.65888    2.285376          5         17
+
+. gen sd_we=r(sd)
+
+. 
+. regress wearn we ax ax2 kids mtr he hw
+
+      Source |       SS           df       MS      Number of obs   =       428
+-------------+----------------------------------   F(7, 420)       =     34.63
+       Model |  2.8914e+09         7   413052528   Prob > F        =    0.0000
+    Residual |  5.0096e+09       420  11927519.7   R-squared       =    0.3660
+-------------+----------------------------------   Adj R-squared   =    0.3554
+       Total |  7.9009e+09       427  18503339.5   Root MSE        =    3453.6
+
+------------------------------------------------------------------------------
+       wearn | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+          we |   399.8928   93.52507     4.28   0.000     216.0573    583.7284
+          ax |   240.5787   68.51342     3.51   0.000     105.9068    375.2506
+         ax2 |  -3.379109   2.051589    -1.65   0.100    -7.411771    .6535534
+        kids |  -91.23148    397.176    -0.23   0.818    -871.9319    689.4689
+         mtr |  -33892.89   3223.625   -10.51   0.000    -40229.34   -27556.45
+          he |  -210.9548   72.15588    -2.92   0.004    -352.7865    -69.1232
+          hw |  -365.6111   66.63966    -5.49   0.000    -496.5999   -234.6223
+       _cons |   25803.93   3040.645     8.49   0.000     19827.16    31780.71
+------------------------------------------------------------------------------
+
+. 
+. display _b[we]*(sd_we/sd_wearn)
+.21245951
+
+. 
+. //alternative 2
+. egen std_wearn=std(wearn)
+
+. egen std_we=std(we)
+
+. egen std_ax=std(ax)
+
+. egen std_ax2=std(ax2)
+
+. egen std_kids=std(kids)
+
+. egen std_mtr=std(mtr)
+
+. egen std_he=std(he)
+
+. egen std_hw=std(hw)
+
+. 
+. reg std_wearn std_we std_ax std_ax2 std_kids std_mtr std_he std_hw
+
+      Source |       SS           df       MS      Number of obs   =       428
+-------------+----------------------------------   F(7, 420)       =     34.63
+       Model |  156.261943         7  22.3231347   Prob > F        =    0.0000
+    Residual |  270.738059       420  .644614426   R-squared       =    0.3660
+-------------+----------------------------------   Adj R-squared   =    0.3554
+       Total |  427.000002       427           1   Root MSE        =    .80288
+
+------------------------------------------------------------------------------
+   std_wearn | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+      std_we |   .2124595    .049689     4.28   0.000     .1147893    .3101297
+      std_ax |   .4505546   .1283116     3.51   0.000     .1983417    .7027675
+     std_ax2 |  -.2121342    .128795    -1.65   0.100    -.4652972    .0410289
+    std_kids |  -.0098865   .0430411    -0.23   0.818    -.0944893    .0747162
+     std_mtr |  -.6061997   .0576569   -10.51   0.000    -.7195318   -.4928676
+      std_he |  -.1488492    .050913    -2.92   0.004    -.2489252   -.0487732
+      std_hw |  -.3035362   .0553253    -5.49   0.000    -.4122853   -.1947872
+       _cons |   8.01e-09   .0388086     0.00   1.000    -.0762833    .0762833
+------------------------------------------------------------------------------
+
+. 
+. *1.2.5 Which coefficients are statistically significant?
+. regress wearn we ax ax2 kids mtr he hw
+
+      Source |       SS           df       MS      Number of obs   =       428
+-------------+----------------------------------   F(7, 420)       =     34.63
+       Model |  2.8914e+09         7   413052528   Prob > F        =    0.0000
+    Residual |  5.0096e+09       420  11927519.7   R-squared       =    0.3660
+-------------+----------------------------------   Adj R-squared   =    0.3554
+       Total |  7.9009e+09       427  18503339.5   Root MSE        =    3453.6
+
+------------------------------------------------------------------------------
+       wearn | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+          we |   399.8928   93.52507     4.28   0.000     216.0573    583.7284
+          ax |   240.5787   68.51342     3.51   0.000     105.9068    375.2506
+         ax2 |  -3.379109   2.051589    -1.65   0.100    -7.411771    .6535534
+        kids |  -91.23148    397.176    -0.23   0.818    -871.9319    689.4689
+         mtr |  -33892.89   3223.625   -10.51   0.000    -40229.34   -27556.45
+          he |  -210.9548   72.15588    -2.92   0.004    -352.7865    -69.1232
+          hw |  -365.6111   66.63966    -5.49   0.000    -496.5999   -234.6223
+       _cons |   25803.93   3040.645     8.49   0.000     19827.16    31780.71
+------------------------------------------------------------------------------
+
+. 
+. **1.3 hypothesis testing
+. *1.3.1
+. test ax ax2 kids
+
+ ( 1)  ax = 0
+ ( 2)  ax2 = 0
+ ( 3)  kids = 0
+
+       F(  3,   420) =   14.33
+            Prob > F =    0.0000
+
+. 
+. *1.3.2
+. test ax ax2 we kids mtr he hw 
+
+ ( 1)  ax = 0
+ ( 2)  ax2 = 0
+ ( 3)  we = 0
+ ( 4)  kids = 0
+ ( 5)  mtr = 0
+ ( 6)  he = 0
+ ( 7)  hw = 0
+
+       F(  7,   420) =   34.63
+            Prob > F =    0.0000
+
+. 
+. *1.3.3
+. * H0: marginal effect of experience, evaluated at 
+. * ax = 5, is equal to zero:
+. * H1: H0 is not true
+. lincom ax + 2*5*ax2
+
+ ( 1)  ax + 10*ax2 = 0
+
+------------------------------------------------------------------------------
+       wearn | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+         (1) |   206.7876   49.69696     4.16   0.000     109.1019    304.4733
+------------------------------------------------------------------------------
+
+. 
+. * non-linear hypothesis: 
+. * H0: beta6/beta7 = 2
+. * H1: beta6/beta7 not equal to 2
+. nlcom ((_b[he]/_b[hw])-2)
+
+       _nl_1: (_b[he]/_b[hw])-2
+
+------------------------------------------------------------------------------
+       wearn | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+       _nl_1 |  -1.423008   .2357027    -6.04   0.000    -1.884976   -.9610388
+------------------------------------------------------------------------------
+
+. 
+. 
+. *1.3.4 How can you test the null hypothesis that the marginal effect of experience on wife's
+>  earnings, evaluated at 30 years of experience, is equal to 0.1?
+. lincom ax + 2*ax2*30 - 0.1
+
+ ( 1)  ax + 60*ax2 = .1
+
+------------------------------------------------------------------------------
+       wearn | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+         (1) |   37.73216   63.05027     0.60   0.550    -86.20124    161.6656
+------------------------------------------------------------------------------
+
+. 
+. **1.4 Variance inflation and correlations
+. estat vif
+
+    Variable |       VIF       1/VIF  
+-------------+----------------------
+         ax2 |     10.99    0.091007
+          ax |     10.91    0.091694
+         mtr |      2.20    0.454118
+          hw |      2.03    0.493201
+          he |      1.72    0.582391
+          we |      1.64    0.611436
+        kids |      1.23    0.814903
+-------------+----------------------
+    Mean VIF |      4.39
+
+. *** 1.5: predictions
+. predict e, resid
+
+. predict t, rstudent
+
+. predict h, leverage
+
+. predict d, cooksd
+
+. 
+. histogram e, kdensity
+(bin=20, start=-9272.6309, width=1102.0007)
+
+. sum e, detail
+
+                          Residuals
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%    -7818.209      -9272.631
+ 5%    -5229.215       -9176.81
+10%    -3821.149      -8480.571       Obs                 428
+25%    -2249.129      -8143.438       Sum of wgt.         428
+
+50%    -306.2045                      Mean           7.54e-06
+                        Largest       Std. dev.      3425.199
+75%      1912.13        10737.7
+90%     4002.448       11555.49       Variance       1.17e+07
+95%     5423.577       12252.31       Skewness       .6160707
+99%     10596.38       12767.38       Kurtosis       4.397951
+
+. 
+. *** 1.6: heteroskedasticity
+. rvfplot
+
+. * there is an obvious pattern which is caused by earnings being strictly 
+. * positive in our sample
+. rvpplot ax
+
+. rvpplot mtr
+
+. rvpplot he
+
+. * heteroskedasticity seems to be present with regards to some of the predictors
+. 
+. estat hettest
+
+Breusch–Pagan/Cook–Weisberg test for heteroskedasticity 
+Assumption: Normal error terms
+Variable: Fitted values of wearn
+
+H0: Constant variance
+
+    chi2(1) =  87.96
+Prob > chi2 = 0.0000
+
+. * we reject the null of homoscedasticity 
+. * Misspecification of the model can often show up as heteroskedasticity as well; 
+. * this is a poorly specified model, so before we address the heteroskedasticity we 
+. * would have to reformulate our model, if we were conducting actual research.
+. 
+. *** 1.7: Outliers and influential data
+. sum t h d
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+           t |        428    .0008269    1.007892  -2.809245   3.774545
+           h |        428    .0186916    .0127693   .0040119   .0950726
+           d |        428    .0030814     .009397   1.62e-10   .1078556
+
+. 
+. graph hbox t
+
+. * we have got some pretty large studentised residuals
+. 
+. sum h, detail
+
+                          Leverage
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%     .0045379       .0040119
+ 5%      .006029       .0041712
+10%     .0073201       .0042855       Obs                 428
+25%     .0106497       .0044373       Sum of wgt.         428
+
+50%     .0158305                      Mean           .0186916
+                        Largest       Std. dev.      .0127693
+75%     .0228903       .0745919
+90%     .0326013       .0881095       Variance       .0001631
+95%     .0397389       .0888996       Skewness       2.463162
+99%     .0715786       .0950726       Kurtosis       11.72231
+
+. * same for leverage
+. 
+. 
+. lvr2plot
+
+. 
+. // Can you replicate the lvr2plot graph, this time weighting the size of the scatter points 
+> based on the cooksd value?
+. // [A detailed help file for lvr2plot can be found here: https://www.stata.com/manuals13/rre
+> gresspostestimationdiagnosticplots.pdf]
+.         
+.         
+.         
+. dfbeta
+
+Generating DFBETA variables ...
+
+    _dfbeta_1: DFBETA we
+    _dfbeta_2: DFBETA ax
+    _dfbeta_3: DFBETA ax2
+    _dfbeta_4: DFBETA kids
+    _dfbeta_5: DFBETA mtr
+    _dfbeta_6: DFBETA he
+    _dfbeta_7: DFBETA hw
+
+. 
+. * take a look at some of those observations:
+. list id t h d _dfbeta* if inlist(id,57, 285, 369, 142, 362, 40, 269)
+
+     +--------------------------------------------------------------------------------------+
+ 40. |  id |         t |        h |        d | _dfbet~1 | _dfbeta_2 | _dfbeta_3 | _dfbeta_4 |
+     |  40 |  3.422299 |  .019769 | .0287915 | .2237369 |  .0516402 | -.1051008 | -.3009493 |
+     |----------------------------+---------------------------------------------------------|
+     |         _dfbeta_5          |         _dfbeta_6          |         _dfbeta_7          |
+     |          .0151013          |          .0217456          |          .0594912          |
+     +--------------------------------------------------------------------------------------+
+
+     +--------------------------------------------------------------------------------------+
+ 57. |  id |         t |        h |        d | _dfbet~1 | _dfbeta_2 | _dfbeta_3 | _dfbeta_4 |
+     |  57 |  3.004578 | .0745919 |  .089251 | .0306133 | -.5136849 |  .6871893 |  .0361191 |
+     |----------------------------+---------------------------------------------------------|
+     |         _dfbeta_5          |         _dfbeta_6          |         _dfbeta_7          |
+     |         -.0209602          |          .1401653          |         -.0443754          |
+     +--------------------------------------------------------------------------------------+
+
+     +--------------------------------------------------------------------------------------+
+142. |  id |         t |        h |        d | _dfbet~1 | _dfbeta_2 | _dfbeta_3 | _dfbeta_4 |
+     | 142 |  3.665496 | .0355209 |  .060075 | .3318386 | -.1034659 |  .1706148 | -.1230384 |
+     |----------------------------+---------------------------------------------------------|
+     |         _dfbeta_5          |         _dfbeta_6          |         _dfbeta_7          |
+     |         -.3696597          |         -.2288527          |         -.2557147          |
+     +--------------------------------------------------------------------------------------+
+
+     +--------------------------------------------------------------------------------------+
+269. |  id |         t |        h |        d | _dfbet~1 | _dfbeta_2 | _dfbeta_3 | _dfbeta_4 |
+     | 269 |  3.774545 | .0105111 | .0183396 | .1159818 |   -.07957 |  .0320016 |  .0796585 |
+     |----------------------------+---------------------------------------------------------|
+     |         _dfbeta_5          |         _dfbeta_6          |         _dfbeta_7          |
+     |         -.2476591          |         -.1436131          |         -.1944724          |
+     +--------------------------------------------------------------------------------------+
+
+     +--------------------------------------------------------------------------------------+
+285. |  id |         t |        h |        d | _dfbet~1 | _dfbeta_2 | _dfbeta_3 | _dfbeta_4 |
+     | 285 | -2.809245 | .0715786 |  .074827 | -.097426 | -.0085897 | -.0512992 | -.2177287 |
+     |----------------------------+---------------------------------------------------------|
+     |         _dfbeta_5          |         _dfbeta_6          |         _dfbeta_7          |
+     |          .5695362          |          .4741553          |          .1980396          |
+     +--------------------------------------------------------------------------------------+
+
+     +--------------------------------------------------------------------------------------+
+362. |  id |         t |        h |        d | _dfbet~1 | _dfbeta_2 | _dfbeta_3 | _dfbeta_4 |
+     | 362 |  3.155644 | .0344947 | .0435429 | .3649164 |  .1476886 |  -.156917 | -.2791873 |
+     |----------------------------+---------------------------------------------------------|
+     |         _dfbeta_5          |         _dfbeta_6          |         _dfbeta_7          |
+     |          .3658065          |         -.2058772          |          .3358471          |
+     +--------------------------------------------------------------------------------------+
+
+     +--------------------------------------------------------------------------------------+
+369. |  id |         t |        h |        d | _dfbet~1 | _dfbeta_2 | _dfbeta_3 | _dfbeta_4 |
+     | 369 |  2.890787 | .0950726 | .1078556 | .1977888 |  .1524524 |  -.073963 |  .1263507 |
+     |----------------------------+---------------------------------------------------------|
+     |         _dfbeta_5          |         _dfbeta_6          |         _dfbeta_7          |
+     |           .345867          |          -.161231          |          .8304649          |
+     +--------------------------------------------------------------------------------------+
+
+. 
+. * observation 57 shifts the coefficients on ax and ax2 by more than half a standard deviatio
+> n - that's a big effect. 
+. * This person has an hourly wage in the top 5% (variable ww) and a lot of job experience (se
+> cond highest value). 
+. 
+. * observation 369 shifts the coefficient on hw by nearly a standard deviation! 
+. * This observation is a part-time worker with an hourly wage in the top 2%. The husband 
+. * has the highest hourly wage in the sample. 
+. 
+. * observation 285 shifts the mtr and he coefficients.
+. * observation 142 shifts all coefficients somewhat. Also very poorly fitted. 
+. 
+. // Rerun the regression without observation 369, comment on the difference between the regre
+> ssion results. 
+. 
+. log close
+      name:  <unnamed>
+       log:  /Users/elliottoates/Library/CloudStorage/OneDrive-UniversityofExeter/Applied Econ
+> ometrics/T3_Linear_Regression_Analysis/Topic3_Results.log
+  log type:  text
+ closed on:  19 Feb 2024, 13:00:17
+----------------------------------------------------------------------------------------------

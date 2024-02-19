@@ -1,0 +1,199 @@
+----------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/elliottoates/Library/CloudStorage/OneDrive-UniversityofExeter/Applied Econ
+> ometrics/T2_Exploratory_data_analysis/Topic2_Results.log
+  log type:  text
+ opened on:  19 Feb 2024, 12:58:09
+
+. 
+. 
+. sysuse nlsw88, clear 
+(NLSW, 1988 extract)
+
+. 
+. // browse the data. Make sure you understand which variables are categorical and which are c
+> ontinuous, and what information each variables contains
+. browse
+
+. 
+. //Find the mean, median and standard deviation of wage. Is the distribution skewed? What are
+>  the smallest and largest values?
+. summarize wage, detail
+
+                         Hourly wage
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%     1.930993       1.004952
+ 5%     2.801002       1.032247
+10%     3.220612       1.151368       Obs               2,246
+25%     4.259257       1.344605       Sum of wgt.       2,246
+
+50%      6.27227                      Mean           7.766949
+                        Largest       Std. dev.      5.755523
+75%     9.597424       40.19808
+90%     12.77777       40.19808       Variance       33.12604
+95%     16.52979       40.19808       Skewness       3.096199
+99%     38.70926       40.74659       Kurtosis       15.85446
+
+. 
+. // Compute and display the mean and median hourly wage for each category of the 'occupation'
+>  variable
+. // This addresses question 3: Analysis of a categorical variable (occupation) in terms of ho
+> urly wages
+. tabstat wage, by(occupation) statistics(mean median)
+
+Summary for variables: wage
+Group variable: occupation (Occupation)
+
+      occupation |      Mean       p50
+-----------------+--------------------
+Professional/Tec |  10.72362  9.677936
+  Managers/Admin |  10.89978  9.488725
+           Sales |  7.154489  6.046698
+Clerical/Unskill |  8.516686  5.128979
+       Craftsmen |  7.152988  5.797099
+      Operatives |  5.653806  5.016723
+       Transport |  3.200494  2.936641
+        Laborers |   4.90589  4.064628
+         Farmers |   8.05153   8.05153
+   Farm laborers |  3.083735  3.019324
+         Service |  5.988743    5.9219
+Household worker |  6.388888  6.388888
+           Other |  8.836294  8.365539
+-----------------+--------------------
+           Total |  7.777928  6.280193
+--------------------------------------
+
+. 
+. 
+. // Compute pairwise correlations among hourly wage, total experience, and tenure
+. // This addresses question 4: Analyzing the correlation between wage, experience, and tenure
+. pwcorr wage ttl_exp tenure, sig
+
+             |     wage  ttl_exp   tenure
+-------------+---------------------------
+        wage |   1.0000 
+             |
+             |
+     ttl_exp |   0.2655   1.0000 
+             |   0.0000
+             |
+      tenure |   0.1777   0.5766   1.0000 
+             |   0.0000   0.0000
+             |
+
+. 
+. // Create a histogram of hourly wages
+. // This addresses question 5: Producing and analyzing a distributional graph for hourly wage
+> s
+. histogram wage, title("Distribution of Hourly Wages") xlabel(none) ylabel(none) name(HistWag
+> e, replace)
+(bin=33, start=1.0049518, width=1.2042921)
+
+. 
+. // Create a histogram of total work experience
+. // This addresses question 5: Producing and analyzing a distributional graph for total work 
+> experience
+. histogram ttl_exp, title("Distribution of Total Work Experience") xlabel(none) ylabel(none) 
+> name(HistExp, replace)
+(bin=33, start=.11538462, width=.87179486)
+
+.         
+. // Create a scatter plot of hourly wage against hours worked per week
+. // This addresses question 6: Analyzing the relationship between work hours and hourly wages
+. scatter wage hours, ///
+>     title("Hourly Wage vs. Hours Worked per Week") ///
+>     xtitle("Hours Worked per Week") ///
+>     ytitle("Hourly Wage") ///
+>     name(ScatterWageHours, replace)
+
+.         
+. // Calculate average wage for union vs non-union members in the 'Operative' occupation
+. // This addresses question 7 for the 'Operative' occupation
+. label list occlbl //shows you that 'operatives label = 6'
+occlbl:
+           1 Professional/Technical
+           2 Managers/Admin
+           3 Sales
+           4 Clerical/Unskilled
+           5 Craftsmen
+           6 Operatives
+           7 Transport
+           8 Laborers
+           9 Farmers
+          10 Farm laborers
+          11 Service
+          12 Household workers
+          13 Other
+
+. 
+. sort union
+
+. by union: summarize wage if occupation == 6 // Mean for non union = 4.67, mean for union = 7
+> .22, mean for undefinded = 5.19 
+
+----------------------------------------------------------------------------------------------
+-> union = Nonunion
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+        wage |        128    4.760546    1.628182   1.867955   9.847019
+
+----------------------------------------------------------------------------------------------
+-> union = Union
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+        wage |         83    7.224349    3.148429    1.80602   17.61674
+
+----------------------------------------------------------------------------------------------
+-> union = .
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+        wage |         35    5.196156    6.290855   1.004952   40.19808
+
+
+. 
+. // Perform Skewness and Kurtosis test for normality on the wage variable
+. // This addresses part 8: Testing the null hypothesis that wage is normally distributed
+. sktest wage // The sktest command performs the Skewness and Kurtosis test on the wage variab
+> le. The output of this test will provide a p-value, which you can use to decide whether to r
+> eject the null hypothesis. If the p-value is less than your chosen significance level (commo
+> nly 0.05), you reject the null hypothesis, suggesting that the distribution of wage is not n
+> ormal. If the p-value is higher, you do not have enough evidence to reject the null hypothes
+> is, suggesting that the wage variable could be normally distributed.
+
+Skewness and kurtosis tests for normality
+                                                         ----- Joint test -----
+    Variable |       Obs   Pr(skewness)   Pr(kurtosis)   Adj chi2(2)  Prob>chi2
+-------------+-----------------------------------------------------------------
+        wage |     2,246         0.0000         0.0000             .          .
+
+. 
+. gladder wage
+
+. 
+. // Generate a new variable that is the natural logarithm of wage
+. gen ln_wage = ln(wage)
+
+. 
+. // Perform Skewness and Kurtosis test for normality on the ln_wage variable
+. // This addresses the test of the null hypothesis that the natural logarithm of wage is norm
+> ally distributed
+. sktest ln_wage
+
+Skewness and kurtosis tests for normality
+                                                         ----- Joint test -----
+    Variable |       Obs   Pr(skewness)   Pr(kurtosis)   Adj chi2(2)  Prob>chi2
+-------------+-----------------------------------------------------------------
+     ln_wage |     2,246         0.0000         0.0000         70.11     0.0000
+
+. 
+. log close
+      name:  <unnamed>
+       log:  /Users/elliottoates/Library/CloudStorage/OneDrive-UniversityofExeter/Applied Econ
+> ometrics/T2_Exploratory_data_analysis/Topic2_Results.log
+  log type:  text
+ closed on:  19 Feb 2024, 12:58:14
+----------------------------------------------------------------------------------------------
