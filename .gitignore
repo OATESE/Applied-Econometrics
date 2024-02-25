@@ -17,3 +17,4 @@ T[0-9]*/*
 
 # Do not ignore .log files in topic directories
 !T[0-9]*/*.log
+!T[0-9]*/*.png
