@@ -22,11 +22,11 @@ Exploring different functional forms and interaction terms in regression models.
 Handling missing data in econometric analyses.  
 [Exercise](T5_Missing_Data/Topic5_Exercise.pdf) | [Solution](T5_Missing_Data/Topic5_Solution.do)
 
-## Yet to complete
-
 ### Binary Dependent Variables
 Dealing with binary dependent variables in regression analysis.  
 [Exercise](T6_Binary_Dependent_Variables/Topic6_Exercise.pdf) | [Solution](T6_Binary_Dependent_Variables/Topic6_Solution.do)
+
+## Yet to complete
 
 ### Marginal Effects
 Calculating and interpreting marginal effects in nonlinear models.  
