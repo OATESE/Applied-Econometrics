@@ -1,0 +1,661 @@
+---------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/elliottoates/Library/CloudStorage/OneDrive-UniversityofExeter/Applied Eco
+> nometrics/T6_Binary_Dependent_Variables/Topic6_Results.log
+  log type:  text
+ opened on:  25 Feb 2024, 14:23:20
+
+. 
+. ********************************
+. ** Binary Dependent Variables **
+. ********************************
+. clear
+
+. 
+. *** 1. Use the National Labour Survey data
+. sysuse nlsw88, clear
+(NLSW, 1988 extract)
+
+. 
+. *** 2. Generate a variable holding the weekly earnings (wage x hours)
+. * This will be done by creating a new variable that multiplies wage by hours worked
+. gen weekly_earnings = wage * hours
+(4 missing values generated)
+
+. 
+. 
+. *** Part 3: Generate a variable that is equal to one if the person is in the top 25% of wee
+> kly earners, and zero otherwise
+. * This will first require determining the 75th percentile value of weekly earnings
+. summarize weekly_earnings, detail
+
+                       weekly_earnings
+-------------------------------------------------------------
+      Percentiles      Smallest
+ 1%     18.81271        4.64573
+ 5%     62.70903       6.038648
+10%     85.66825        8.05153       Obs               2,242
+25%     146.5378       9.297376       Sum of wgt.       2,242
+
+50%     241.3124                      Mean           298.9781
+                        Largest       Std. dev.      255.8266
+75%     379.4201       1607.923
+90%     526.3284       1607.923       Variance       65447.26
+95%     650.5149       1607.923       Skewness       2.979907
+99%     1607.923       1607.924       Kurtosis       14.81407
+
+. local top25percentile = r(p75)
+
+. * Now, generate the indicator variable
+. gen high_earner = (weekly_earnings >= `top25percentile')
+
+. 
+. 
+. *** Part 4: Run a regression model where the new indicator variable is the dependent variab
+> le
+. 
+. * Independent variables: age, grade, race, married, union, south, smsa, hours, ttl.exp, and
+>  tenure
+. * The race, married, and union variables are categorical and need to be factorized
+. regress high_earner i.race i.married i.union south smsa hours ttl_exp tenure age grade
+
+      Source |       SS           df       MS      Number of obs   =     1,865
+-------------+----------------------------------   F(11, 1853)     =     71.20
+       Model |  108.309308        11  9.84630076   Prob > F        =    0.0000
+    Residual |  256.246188     1,853  .138287203   R-squared       =    0.2971
+-------------+----------------------------------   Adj R-squared   =    0.2929
+       Total |  364.555496     1,864  .195576983   Root MSE        =    .37187
+
+------------------------------------------------------------------------------
+ high_earner | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        race |
+      Black  |  -.0386036    .021416    -1.80   0.072    -.0806056    .0033984
+      Other  |    .122267   .0767682     1.59   0.111    -.0282942    .2728281
+             |
+     married |
+    Married  |  -.0358078   .0187665    -1.91   0.057    -.0726135     .000998
+             |
+       union |
+      Union  |   .0835062   .0206699     4.04   0.000     .0429675     .124045
+       south |  -.0580796    .018809    -3.09   0.002    -.0949686   -.0211905
+        smsa |   .1072072   .0195706     5.48   0.000     .0688244      .14559
+       hours |   .0099004   .0009089    10.89   0.000     .0081179    .0116829
+     ttl_exp |   .0124398   .0023915     5.20   0.000     .0077496      .01713
+      tenure |    .007084   .0019078     3.71   0.000     .0033423    .0108258
+         age |  -.0005557   .0028762    -0.19   0.847    -.0061966    .0050853
+       grade |    .052372   .0035576    14.72   0.000     .0453948    .0593493
+       _cons |  -1.019618   .1292843    -7.89   0.000    -1.273177   -.7660603
+------------------------------------------------------------------------------
+
+. * Store the model for later use
+. estimates store linear_model
+
+. 
+. *** 5. Examine the output and comment on sign and significance of the coefficients
+. 
+. * Interpretation of 'union' coefficient
+. * A positive coefficient of 0.0835062 for 'union' suggests that, holding other variables co
+> nstant, being a member of a union is associated with an 8.35 percentage point increase in t
+> he likelihood of being in the top 25% of weekly earners. The coefficient is statistically s
+> ignificant (P < 0.01).
+. 
+. * Interpretation of 'south' coefficient
+. * A negative coefficient of -0.580796 for 'south' suggests that, holding other variables co
+> nstant, living in the South is associated with a 58.08 percentage point decrease in the lik
+> elihood of being in the top 25% of weekly earners. This coefficient is statistically signif
+> icant (P < 0.05).
+. 
+. 
+. *** 6. Assess if the linear regression results in predictions outside the (0,1) interval, a
+> nd identify how many observations are affected
+. 
+. * Generate predicted values from the linear regression model
+. predict predicted_values
+(option xb assumed; fitted values)
+(381 missing values generated)
+
+. 
+. * Count the number of predictions outside the (0,1) interval
+. count if predicted_values < 0 | predicted_values > 1
+  628
+
+. 
+. * Store the number of affected observations in a local macro for reporting or further analy
+> sis
+. scalar observations_outside_interval = r(N)
+
+. 
+. * Display the number of observations with predictions outside the (0,1) interval
+. display "Number of observations with predictions outside the (0,1) interval: " observations
+> _outside_interval
+Number of observations with predictions outside the (0,1) interval: 628
+
+. 
+. 
+. * 7. Estimate the same model using logistic regression (logit)
+. * Store the estimates for comparison with the linear model
+. logit high_earner i.race i.married i.union south smsa hours ttl_exp tenure age grade
+
+Iteration 0:  Log likelihood = -1081.2044  
+Iteration 1:  Log likelihood = -776.13749  
+Iteration 2:  Log likelihood = -736.64427  
+Iteration 3:  Log likelihood = -736.21554  
+Iteration 4:  Log likelihood = -736.21533  
+Iteration 5:  Log likelihood = -736.21533  
+
+Logistic regression                                     Number of obs =  1,865
+                                                        LR chi2(11)   = 689.98
+                                                        Prob > chi2   = 0.0000
+Log likelihood = -736.21533                             Pseudo R2     = 0.3191
+
+------------------------------------------------------------------------------
+ high_earner | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+        race |
+      Black  |   -.299587   .1615896    -1.85   0.064    -.6162968    .0171227
+      Other  |    .328368   .5535239     0.59   0.553    -.7565189    1.413255
+             |
+     married |
+    Married  |  -.1736407   .1368428    -1.27   0.204    -.4418477    .0945662
+             |
+       union |
+      Union  |   .5654573    .148164     3.82   0.000     .2750612    .8558535
+       south |  -.4955706   .1432811    -3.46   0.001    -.7763964   -.2147447
+        smsa |   .9526097   .1679408     5.67   0.000     .6234517    1.281768
+       hours |   .0955573   .0096096     9.94   0.000     .0767228    .1143918
+     ttl_exp |   .1352918   .0203468     6.65   0.000     .0954129    .1751708
+      tenure |   .0377533   .0131785     2.86   0.004     .0119239    .0635827
+         age |  -.0198376   .0221593    -0.90   0.371    -.0632689    .0235938
+       grade |   .3788304   .0288451    13.13   0.000      .322295    .4353657
+       _cons |  -11.86027   1.087114   -10.91   0.000    -13.99097   -9.729565
+------------------------------------------------------------------------------
+
+. 
+. * 8. Comment on the logit model output
+. * Interpret the same two coefficients as in the linear model but within the context of log-
+> odds
+. *
+. * A positive coefficient of 0.5654573 for 'union' in a logistic regression indicates that u
+> nion members have higher log-odds of being a top earner compared to non-members, holding ot
+> her variables constant. This coefficient is statistically significant (P < 0.01), implying 
+> that union membership is an important predictor of being in the top 25% of weekly earners.
+. 
+. * A negative coefficient of -0.4955706 for 'south' suggests that individuals in the South h
+> ave lower log-odds of being a top earner compared to those in other regions. This result is
+>  statistically significant (P < 0.01), indicating a meaningful difference in the likelihood
+>  of being a high earner based on geographical location.
+. 
+. 
+. *** Part 9. Examine the goodness of fit statistics for your logit model
+. * The model's Pseudo R-squared of 0.3191 indicates that approximately 31.91% of the variabi
+> lity in being a high earner is explained by the model. A likelihood ratio test statistic (L
+> R chi2) of 689.98 with a P-value close to 0 suggests that the model as a whole is statistic
+> ally significant.
+. 
+. 
+. * 10. Calculate the average marginal effect of experience, separately for married and singl
+> e people
+. * This involves using the margins command after estimating the logit model
+. margins, dydx(ttl_exp) at(married=(0 1))
+
+Average marginal effects                                 Number of obs = 1,865
+Model VCE: OIM
+
+Expression: Pr(high_earner), predict()
+dy/dx wrt:  ttl_exp
+1._at: married = 0
+2._at: married = 1
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |      dy/dx   std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+ttl_exp      |
+         _at |
+          1  |   .0176275   .0025551     6.90   0.000     .0126196    .0226353
+          2  |   .0169048   .0024662     6.85   0.000     .0120711    .0217384
+------------------------------------------------------------------------------
+
+. 
+. 
+. 
+. * 11. Calculate the predicted probability of being a high earner for a white person in the 
+> south, with otherwise average characteristics, at grade=(10 13 16)
+. * Compare these predictions with those from the linear regression model and comment on any 
+> differences
+. quietly: logit high_earner i.race i.married i.union south smsa hours ttl_exp tenure age gra
+> de
+
+. margins, at(grade=(10 13 16))
+
+Predictive margins                                       Number of obs = 1,865
+Model VCE: OIM
+
+Expression: Pr(high_earner), predict()
+1._at: grade = 10
+2._at: grade = 13
+3._at: grade = 16
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |     Margin   std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+         _at |
+          1  |   .1039537   .0103892    10.01   0.000     .0835913    .1243161
+          2  |   .2262036   .0096653    23.40   0.000     .2072599    .2451473
+          3  |   .4076351   .0157465    25.89   0.000     .3767725    .4384976
+------------------------------------------------------------------------------
+
+. 
+. 
+. *************************
+. ** Interaction Effects **
+. *************************
+. 
+. 
+. * 1. Expand your model by adding an interaction effect between a dummy variable (dvar) and 
+> a continuous variable (cvar)
+. logit high_earner i.race##c.ttl_exp i.married i.union south smsa hours tenure age grade
+
+Iteration 0:  Log likelihood = -1081.2044  
+Iteration 1:  Log likelihood = -775.96798  
+Iteration 2:  Log likelihood = -736.60279  
+Iteration 3:  Log likelihood = -736.14626  
+Iteration 4:  Log likelihood = -736.14597  
+Iteration 5:  Log likelihood = -736.14597  
+
+Logistic regression                                     Number of obs =  1,865
+                                                        LR chi2(13)   = 690.12
+                                                        Prob > chi2   = 0.0000
+Log likelihood = -736.14597                             Pseudo R2     = 0.3191
+
+--------------------------------------------------------------------------------
+   high_earner | Coefficient  Std. err.      z    P>|z|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+          race |
+        Black  |  -.0782307   .6138186    -0.13   0.899    -1.281293    1.124832
+        Other  |   .3383268   2.128816     0.16   0.874    -3.834075    4.510729
+               |
+       ttl_exp |   .1385676    .022385     6.19   0.000     .0946938    .1824415
+               |
+race#c.ttl_exp |
+        Black  |  -.0150749   .0403942    -0.37   0.709    -.0942462    .0640963
+        Other  |  -.0007816   .1376389    -0.01   0.995    -.2705489    .2689857
+               |
+       married |
+      Married  |  -.1726693   .1368899    -1.26   0.207    -.4409686    .0956299
+               |
+         union |
+        Union  |    .562092   .1485008     3.79   0.000     .2710357    .8531483
+         south |  -.4952796   .1432699    -3.46   0.001    -.7760835   -.2144757
+          smsa |   .9539317   .1681735     5.67   0.000     .6243178    1.283546
+         hours |   .0954079   .0096128     9.93   0.000     .0765671    .1142486
+        tenure |   .0377803   .0131861     2.87   0.004      .011936    .0636246
+           age |  -.0188799   .0223072    -0.85   0.397    -.0626012    .0248413
+         grade |   .3792254   .0288719    13.13   0.000     .3226375    .4358133
+         _cons |  -11.94543   1.112807   -10.73   0.000    -14.12649   -9.764365
+--------------------------------------------------------------------------------
+
+. 
+. 
+. * 2. Store the logistic regression model estimates
+. estimates store logit_interaction_model
+
+. 
+. * 3. Calculate the average marginal effect of the continuous variable on the probability of
+>  being a high earner, over the dummy variable
+. margins, dydx(ttl_exp) over(race)
+
+Average marginal effects                                 Number of obs = 1,865
+Model VCE: OIM
+
+Expression: Pr(high_earner), predict()
+dy/dx wrt:  ttl_exp
+Over:       race
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |      dy/dx   std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+ttl_exp      |
+        race |
+      White  |   .0177888   .0027255     6.53   0.000      .012447    .0231306
+      Black  |   .0149271   .0043623     3.42   0.001     .0063771    .0234771
+      Other  |   .0192534   .0170653     1.13   0.259    -.0141939    .0527008
+------------------------------------------------------------------------------
+
+. 
+. * 4. Estimate the same model by OLS
+. regress high_earner i.race##c.ttl_exp i.married i.union south smsa hours tenure age grade
+
+      Source |       SS           df       MS      Number of obs   =     1,865
+-------------+----------------------------------   F(13, 1851)     =     60.58
+       Model |  108.813356        13  8.37025813   Prob > F        =    0.0000
+    Residual |   255.74214     1,851  .138164311   R-squared       =    0.2985
+-------------+----------------------------------   Adj R-squared   =    0.2936
+       Total |  364.555496     1,864  .195576983   Root MSE        =     .3717
+
+--------------------------------------------------------------------------------
+   high_earner | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+          race |
+        Black  |   .0706029   .0611375     1.15   0.248    -.0493027    .1905086
+        Other  |   .1293997   .1944577     0.67   0.506    -.2519797    .5107791
+               |
+       ttl_exp |   .0145329   .0026522     5.48   0.000     .0093313    .0197345
+               |
+race#c.ttl_exp |
+        Black  |  -.0083233    .004365    -1.91   0.057    -.0168841    .0002376
+        Other  |  -.0005646   .0138965    -0.04   0.968     -.027819    .0266898
+               |
+       married |
+      Married  |  -.0348867   .0187665    -1.86   0.063    -.0716925    .0019191
+               |
+         union |
+        Union  |   .0833971   .0206684     4.04   0.000     .0428614    .1239329
+         south |  -.0579121   .0188016    -3.08   0.002    -.0947866   -.0210376
+          smsa |   .1064548   .0195802     5.44   0.000     .0680532    .1448563
+         hours |    .009813   .0009097    10.79   0.000     .0080287    .0115972
+        tenure |   .0070501   .0019075     3.70   0.000      .003309    .0107911
+           age |  -.0000283   .0028882    -0.01   0.992    -.0056928    .0056362
+         grade |   .0527948   .0035632    14.82   0.000     .0458066    .0597831
+         _cons |  -1.069398   .1319295    -8.11   0.000    -1.328144   -.8106515
+--------------------------------------------------------------------------------
+
+. estimates store ols_interaction_model
+
+. 
+. 
+. * 5. Calculate the average marginal effect of the continuous variable (cvar) on the probabi
+> lity of being a high earner, over the dummy variable (dvar)
+. margins, dydx(ttl_exp) over(race)
+
+Average marginal effects                                 Number of obs = 1,865
+Model VCE: OLS
+
+Expression: Linear prediction, predict()
+dy/dx wrt:  ttl_exp
+Over:       race
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |      dy/dx   std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+ttl_exp      |
+        race |
+      White  |   .0145329   .0026522     5.48   0.000     .0093313    .0197345
+      Black  |   .0062096    .004045     1.54   0.125    -.0017236    .0141429
+      Other  |   .0139683   .0137807     1.01   0.311     -.013059    .0409956
+------------------------------------------------------------------------------
+
+. * For the OLS model, the average marginal effect of total work experience (ttl_exp) on the 
+> probability of being a high earner:
+. * - White individuals show a significant increase of about 0.145 per year of experience.
+. * - Black individuals show a smaller and not statistically significant increase of about 0.
+> 006 per year of experience.
+. * - Individuals of 'Other' race categories show a small and not statistically significant i
+> ncrease of about 0.014 per year of experience.
+. 
+. * For the logit model, the average marginal effect of total work experience (ttl_exp) on th
+> e log-odds of being a high earner:
+. * - White individuals show a significant increase in the log-odds of being a high earner by
+>  about 0.018 per year of experience.
+. * - Black individuals show a significant increase in the log-odds of about 0.015, which is 
+> slightly lower than that for White individuals.
+. * - Individuals of 'Other' race categories show a non-significant increase in the log-odds 
+> of about 0.019 per year of experience.
+. 
+. * The key differences are:
+. * - The magnitude of the effect is larger in the OLS model than in the logit model.
+. * - The OLS model shows statistical significance for White individuals only, while the logi
+> t model shows significance for both White and Black individuals.
+. * - The confidence intervals in the OLS model are narrower compared to the logit model, whi
+> ch suggests more precision in the OLS estimates.
+. * - The OLS estimates are in terms of probability changes, while the logit estimates are in
+>  terms of changes in log-odds.
+. 
+. * 6. Choose a second continuous variable (cvar2)
+. * Restore the logit model before calculating marginal effects
+. estimates restore logit_interaction_model
+(results logit_interaction_model are active now)
+
+. 
+. summarize tenure
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+      tenure |      2,231     5.97785    5.510331          0   25.91667
+
+. * Set the values for weekly_earnings at which to calculate the marginal effects
+. local mean_tenure = r(mean)
+
+. local low_tenure = r(mean) - r(sd)
+
+. local high_tenure = r(mean) + r(sd)
+
+. 
+. * Calculate the marginal effects of ttl_exp over race at the chosen values of weekly_earnin
+> gs
+. margins, dydx(ttl_exp) over(race) at(tenure=(`low_tenure' `mean_tenure' `high_tenure'))
+
+Average marginal effects                                 Number of obs = 1,865
+Model VCE: OIM
+
+Expression: Pr(high_earner), predict()
+dy/dx wrt:  ttl_exp
+Over:       race
+1._at: 1.race
+           tenure = .4675188
+       2.race
+           tenure = .4675188
+       3.race
+           tenure = .4675188
+2._at: 1.race
+           tenure =  5.97785
+       2.race
+           tenure =  5.97785
+       3.race
+           tenure =  5.97785
+3._at: 1.race
+           tenure = 11.48818
+       2.race
+           tenure = 11.48818
+       3.race
+           tenure = 11.48818
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |      dy/dx   std. err.      z    P>|z|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+ttl_exp      |
+    _at#race |
+    1#White  |   .0170295   .0028243     6.03   0.000      .011494     .022565
+    1#Black  |   .0137243   .0042503     3.23   0.001     .0053938    .0220548
+    1#Other  |   .0199998   .0180507     1.11   0.268     -.015379    .0553787
+    2#White  |   .0179785   .0027385     6.57   0.000     .0126112    .0233459
+    2#Black  |   .0148327   .0043869     3.38   0.001     .0062344    .0234309
+    2#Other  |   .0198704   .0175449     1.13   0.257    -.0145169    .0542577
+    3#White  |   .0188523    .002695     7.00   0.000     .0135703    .0241343
+    3#Black  |   .0159031   .0045471     3.50   0.000     .0069909    .0248153
+    3#Other  |   .0195527   .0169135     1.16   0.248    -.0135971    .0527025
+------------------------------------------------------------------------------
+
+. 
+. * Plot the marginal effects
+. marginsplot, name(marginsplot_logit)
+
+Variables that uniquely identify margins: tenure race
+
+. 
+. ***7.
+. * Estimate the same model by OLS to calculate marginal effects
+. regress high_earner i.race##c.ttl_exp i.married i.union south smsa hours tenure age grade
+
+      Source |       SS           df       MS      Number of obs   =     1,865
+-------------+----------------------------------   F(13, 1851)     =     60.58
+       Model |  108.813356        13  8.37025813   Prob > F        =    0.0000
+    Residual |   255.74214     1,851  .138164311   R-squared       =    0.2985
+-------------+----------------------------------   Adj R-squared   =    0.2936
+       Total |  364.555496     1,864  .195576983   Root MSE        =     .3717
+
+--------------------------------------------------------------------------------
+   high_earner | Coefficient  Std. err.      t    P>|t|     [95% conf. interval]
+---------------+----------------------------------------------------------------
+          race |
+        Black  |   .0706029   .0611375     1.15   0.248    -.0493027    .1905086
+        Other  |   .1293997   .1944577     0.67   0.506    -.2519797    .5107791
+               |
+       ttl_exp |   .0145329   .0026522     5.48   0.000     .0093313    .0197345
+               |
+race#c.ttl_exp |
+        Black  |  -.0083233    .004365    -1.91   0.057    -.0168841    .0002376
+        Other  |  -.0005646   .0138965    -0.04   0.968     -.027819    .0266898
+               |
+       married |
+      Married  |  -.0348867   .0187665    -1.86   0.063    -.0716925    .0019191
+               |
+         union |
+        Union  |   .0833971   .0206684     4.04   0.000     .0428614    .1239329
+         south |  -.0579121   .0188016    -3.08   0.002    -.0947866   -.0210376
+          smsa |   .1064548   .0195802     5.44   0.000     .0680532    .1448563
+         hours |    .009813   .0009097    10.79   0.000     .0080287    .0115972
+        tenure |   .0070501   .0019075     3.70   0.000      .003309    .0107911
+           age |  -.0000283   .0028882    -0.01   0.992    -.0056928    .0056362
+         grade |   .0527948   .0035632    14.82   0.000     .0458066    .0597831
+         _cons |  -1.069398   .1319295    -8.11   0.000    -1.328144   -.8106515
+--------------------------------------------------------------------------------
+
+. summarize tenure
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+      tenure |      2,231     5.97785    5.510331          0   25.91667
+
+. * Store the mean and standard deviations of tenure in local macros
+. local mean_tenure_ols = r(mean)
+
+. local low_tenure_ols = r(mean) - r(sd)
+
+. local high_tenure_ols = r(mean) + r(sd)
+
+. * Calculate the marginal effects of ttl_exp over race at the low, mean, and high values of 
+> tenure for the OLS model
+. margins, dydx(ttl_exp) over(race) at(tenure=(`low_tenure_ols' `mean_tenure_ols' `high_tenur
+> e_ols'))
+
+Average marginal effects                                 Number of obs = 1,865
+Model VCE: OLS
+
+Expression: Linear prediction, predict()
+dy/dx wrt:  ttl_exp
+Over:       race
+1._at: 1.race
+           tenure = .4675188
+       2.race
+           tenure = .4675188
+       3.race
+           tenure = .4675188
+2._at: 1.race
+           tenure =  5.97785
+       2.race
+           tenure =  5.97785
+       3.race
+           tenure =  5.97785
+3._at: 1.race
+           tenure = 11.48818
+       2.race
+           tenure = 11.48818
+       3.race
+           tenure = 11.48818
+
+------------------------------------------------------------------------------
+             |            Delta-method
+             |      dy/dx   std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+ttl_exp      |
+    _at#race |
+    1#White  |   .0145329   .0026522     5.48   0.000     .0093313    .0197345
+    1#Black  |   .0062096    .004045     1.54   0.125    -.0017236    .0141429
+    1#Other  |   .0139683   .0137807     1.01   0.311     -.013059    .0409956
+    2#White  |   .0145329   .0026522     5.48   0.000     .0093313    .0197345
+    2#Black  |   .0062096    .004045     1.54   0.125    -.0017236    .0141429
+    2#Other  |   .0139683   .0137807     1.01   0.311     -.013059    .0409956
+    3#White  |   .0145329   .0026522     5.48   0.000     .0093313    .0197345
+    3#Black  |   .0062096    .004045     1.54   0.125    -.0017236    .0141429
+    3#Other  |   .0139683   .0137807     1.01   0.311     -.013059    .0409956
+------------------------------------------------------------------------------
+
+. 
+. * Plot the marginal effects for the OLS model
+. marginsplot, name(marginsplot_ols)
+
+Variables that uniquely identify margins: tenure race
+
+. 
+. 
+. **Differences in graphs 
+. 
+. // Scale of the Effects:
+. //In the first graph (logit model), the effects on the probability range roughly from -0.02
+>  to 0.06.
+. //In the second graph (OLS model), the effects on the linear prediction are narrower, rangi
+> ng approximately from -0.01 to 0.04.
+. 
+. //Interpretation of Effects:
+. //The effects in the first graph are interpreted as changes in the probability of being a h
+> igh earner due to one more year of total work experience, conditional on job tenure and rac
+> e.
+. //The effects in the second graph reflect changes in the linear prediction (which could be 
+> the log-odds of being a high earner) for one more year of total work experience, also condi
+> tional on job tenure and race.
+. 
+. //Confidence Intervals:
+. //The confidence intervals in the first graph seem wider than those in the second graph, es
+> pecially for the Black and Other racial groups at higher levels of job tenure. This suggest
+> s greater uncertainty or variability in the logistic regression estimates compared to the O
+> LS regression estimates.
+. 
+. //Statistical Significance:
+. //While the second graph does not show statistical significance for any racial group across
+>  different levels of job tenure (as the CIs cross the zero-effect line), the first graph su
+> ggests there may be levels of job tenure where the effect of work experience on the probabi
+> lity of being a high earner is statistically significant for certain racial groups. However
+> , this can only be confirmed by looking at the p-values associated with the estimates.
+. 
+. //Value of Job Tenure:
+. //Both graphs share the same job tenure values, but the interpretation of these values in r
+> elation to the dependent variable differs due to the nature of the models (logit versus OLS
+> ).
+. 
+. //Racial Group Effects:
+. //In both graphs, the effects for the White racial group remain relatively stable across di
+> fferent levels of job tenure, whereas for the Black and Other racial groups, the confidence
+>  intervals widen significantly as job tenure increases, indicating more uncertainty in the 
+> estimates for these groups at higher tenure levels.
+. 
+. //The differences in the graphs underscore the importance of model choice when interpreting
+>  interaction effects, as logistic regression models are nonlinear and probabilities are bou
+> nded between 0 and 1, while OLS regression models are linear and unbounded. This can lead t
+> o different conclusions about the significance and size of the interaction effects, as well
+>  as their stability across different values of the moderator variable (in this case, job te
+> nure).
+. * Combine the plots
+. graph combine marginsplot_logit marginsplot_ols, name(combinedplot)
+
+. 
+. * Export the combined plot to an image file
+. graph export "combined_plot.png", as(png) replace
+file /Users/elliottoates/Library/CloudStorage/OneDrive-UniversityofExeter/Applied
+    Econometrics/T6_Binary_Dependent_Variables/combined_plot.png saved as PNG format
+
+. 
+. 
+. 
+. log close
+      name:  <unnamed>
+       log:  /Users/elliottoates/Library/CloudStorage/OneDrive-UniversityofExeter/Applied Eco
+> nometrics/T6_Binary_Dependent_Variables/Topic6_Results.log
+  log type:  text
+ closed on:  25 Feb 2024, 14:23:23
+---------------------------------------------------------------------------------------------
